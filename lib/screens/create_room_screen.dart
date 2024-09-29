@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:socketio/resources/socket_methods.dart';
 import 'package:socketio/responsive/responsive.dart';
 import 'package:socketio/widgets/custom_button.dart';
 import 'package:socketio/widgets/custom_text.dart';
@@ -13,14 +14,14 @@ class CreateRoomScreen extends StatefulWidget {
 }
 
 class _CreateRoomScreenState extends State<CreateRoomScreen> {
-
-  TextEditingController controller = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
+  final SocketMethods _socketMethods = SocketMethods();
 
   @override
   void dispose() {
-    // TODO: implement dispose
+    // Dispose the controller to avoid memory leaks
     super.dispose();
-    controller.dispose();
+    _nameController.dispose();
   }
 
   @override
@@ -29,28 +30,32 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
     return Scaffold(
       body: Responsive(
         child: Container(
-          margin: EdgeInsets.symmetric(horizontal: 20,),
+          margin: const EdgeInsets.symmetric(horizontal: 20),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              CustomText(
-                  shadows: [
-                    Shadow(
-                      blurRadius: 40,
-                      color: Colors.blue
-                    )
-                  ],
-                  text: 'Create Room',
-                  fontSize: 70
+              const CustomText(
+                shadows: [
+                  Shadow(blurRadius: 40, color: Colors.blue),
+                ],
+                text: 'Create Room',
+                fontSize: 70,
               ),
-              SizedBox(height: size.height * 0.08,),
-                CustomTextField(
-                    controller: controller,
-                    hintText: 'Enter Your Nick Name'
-                ),
-              SizedBox(height: size.height * 0.045,),
-              CustomButton(onTap: (){}, text: 'Create')
+              SizedBox(height: size.height * 0.08),
+              CustomTextField(
+                controller: _nameController,
+                hintText: 'Enter Your Nick Name',
+              ),
+              SizedBox(height: size.height * 0.045),
+              CustomButton(
+                onTap: () {
+                  // Debugging
+                  print('Nickname entered: ${_nameController.text}');
+                  _socketMethods.createRoom(_nameController.text);
+                },
+                text: 'Create',
+              ),
             ],
           ),
         ),
