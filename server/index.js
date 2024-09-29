@@ -1,4 +1,3 @@
-// console.log("Dwaipayan");
 require('dotenv').config();
 const express = require('express');
 const http = require('http');
@@ -8,18 +7,45 @@ const socketIo = require('socket.io');
 const app = express();
 const port = process.env.PORT || 4000;
 const server = http.createServer(app);
+const Room = require('./models/rooms');
 const io = socketIo(server);  // Attach socket.io to the server
 
-// Use environment variable for MongoDB connection string
+// MongoDB connection string
 const DB = "mongodb+srv://biswastatay73:lljNlmUwvO3QRuWZ@cluster0.oluj3.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
 
 // Socket.io connection event
-io.on('connection', (socket) => {
+io.on('connection', async (socket) => {
   console.log("Client connected");
 
-  // Event listener for room creation (placeholder logic)
-  socket.on('createRoom', ({ nickname }) => {
-      console.log(nickname);
+  // Event listener for room creation
+  socket.on('createRoom', async ({ nickname }) => {
+    try {
+      console.log(`Nickname received: ${nickname}`);
+
+      // Create a new room and add the player
+      let room = new Room();
+      let player = {
+        socketID: socket.id,
+        nickname,
+        playerType: 'X',
+      };
+      room.players.push(player);
+      room.turn = player;
+
+      // Save the room in MongoDB
+      room = await room.save();
+      console.log('Room created:', room);
+
+      const roomId = room._id.toString();
+
+      // Join the player to the room
+      socket.join(roomId);
+
+      // Emit room success event to the client
+      io.to(roomId).emit('CreateRoomSuccess', room);
+    } catch (error) {
+      console.log('Room creation error:', error);
+    }
   });
 
   // Disconnect event

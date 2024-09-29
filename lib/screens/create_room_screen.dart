@@ -25,6 +25,12 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    _socketMethods.createRoomSuccessListener(context);
+  }
+
+  @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     return Scaffold(
@@ -45,12 +51,12 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
               SizedBox(height: size.height * 0.08),
               CustomTextField(
                 controller: _nameController,
-                hintText: 'Enter Your Nick Name',
+                hintText: 'Enter Your Nickname',
               ),
               SizedBox(height: size.height * 0.045),
               CustomButton(
                 onTap: () {
-                  // Debugging
+                  // Print nickname for debugging
                   print('Nickname entered: ${_nameController.text}');
                   _socketMethods.createRoom(_nameController.text);
                 },
